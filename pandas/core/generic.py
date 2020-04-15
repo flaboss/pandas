@@ -4971,11 +4971,82 @@ class NDFrame(PandasObject, SelectionMixin, indexing.IndexingMixin):
         locs = rs.choice(axis_length, size=n, replace=replace, p=weights)
         return self.take(locs, axis=axis)
 
-    def stratified_sample(self: FrameOrSeries, msg) -> FrameOrSeries:
-        print('my new function')
-        print(msg)
-        return True
+    def stratified_sample(
+        self: FrameOrSeries,
+        strata,
+        n=None,
+        random_state=None,
+        keep_index = True
+    ) -> FrameOrSeries:
+
+        return None
         
+
+    def stratified_sample_report(
+        self: FrameOrSeries,
+        strata,
+        n=None
+    ) -> FrameOrSeries:
+        '''
+        Generates a dataframe reporting the counts in each stratum and the counts
+        for the final sampled dataframe.
+
+        Parameters
+        ----------
+        :df: pandas dataframe from which data will be sampled.
+        :strata: list containing columns that will be used in the stratified sampling.
+        :size: sampling size. If not informed, a sampling size will be calculated
+            using Cochran adjusted sampling formula:
+            cochran_n = (Z**2 * p * q) /e**2
+
+            where:
+                - Z is the z-value. In this case we use 1.96 representing 95%
+                - p is the estimated proportion of the population which has an
+                    attribute. In this case we use 0.5
+                - q is 1-p
+                - e is the margin of error
+
+            This formula is adjusted as follows:
+            adjusted_cochran = cochran_n / 1+((cochran_n -1)/N)
+
+            where:
+                - cochran_n = result of the previous formula
+                - N is the population size
+
+        Returns
+        -------
+        A dataframe reporting the counts in each stratum and the counts
+        for the final sampled dataframe.
+        '''
+        population = len(df)
+        size = __smpl_size(population, size)
+        tmp = df[strata]
+        tmp['size'] = 1
+        tmp_grpd = tmp.groupby(strata).count().reset_index()
+        tmp_grpd['samp_size'] = round(size/population * tmp_grpd['size']).astype(int)
+        return tmp_grpd
+
+
+
+    def __smpl_size(
+        self: FrameOrSeries,
+        population, 
+        size
+        ):
+
+        # DOCSTRINGS HERE
+
+        if size is None:
+            cochran_n = round(((1.96)**2 * 0.5 * 0.5)/ 0.02**2)
+            n = round(cochran_n/(1+((cochran_n -1) /population)))
+        elif size >= 0 and size < 1:
+            n = round(population * size)
+        elif size < 0:
+            raise ValueError('Parameter "n" must be an integer or a proportion between 0 and 0.99.')
+        elif size >= 1:
+            n = size
+        return n
+
     
     _shared_docs[
         "pipe"
