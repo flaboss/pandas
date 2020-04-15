@@ -4976,7 +4976,7 @@ class NDFrame(PandasObject, SelectionMixin, indexing.IndexingMixin):
         strata,
         n=None,
         random_state=None,
-        keep_index = True
+        keep_index=True
     ) -> FrameOrSeries:
 
         return None
@@ -5018,13 +5018,16 @@ class NDFrame(PandasObject, SelectionMixin, indexing.IndexingMixin):
         A dataframe reporting the counts in each stratum and the counts
         for the final sampled dataframe.
         '''
-        population = len(df)
-        size = __smpl_size(population, size)
-        tmp = df[strata]
-        tmp['size'] = 1
-        tmp_grpd = tmp.groupby(strata).count().reset_index()
-        tmp_grpd['samp_size'] = round(size/population * tmp_grpd['size']).astype(int)
-        return tmp_grpd
+        return self.iloc[:2]
+        #population = len(tmp_df)
+        #size = __smpl_size(population, n)
+        #tmp = tmp_df[strata]
+        #tmp['size'] = 1
+        #tmp_grpd = tmp.groupby(strata).count().reset_index()
+        #tmp_grpd['samp_size'] = round(size/population * tmp_grpd['size']).astype(int)
+        #return tmp_grpd
+
+        #return tmp_df
 
 
 
